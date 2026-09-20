@@ -1,13 +1,15 @@
 /**
  * Atmospheric Hero Light Rays & Ambient Glow
- * Adapted for Telegram Mini App (TMA)
- * Cursor / Touch movement disabled - fully autonomous organic drift
+ * Specially optimized for Telegram Mini App & mobile screens
+ * - Anchored directly at the top edge (no offset on portrait/tall phones)
+ * - Noticeable, fluid, organic shimmering and breathing motion
+ * - Lightweight canvas resolution (DPR 1.0) for silky 60/120 FPS on all phones
  */
 
 (function () {
   'use strict';
 
-  // --- Telegram WebApp SDK Initialization ---
+  // Telegram WebApp SDK Initialization
   if (window.Telegram && window.Telegram.WebApp) {
     try {
       const tg = window.Telegram.WebApp;
@@ -28,7 +30,8 @@
   }
 
   const canvas = document.getElementById('glcanvas');
-  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  const gl = canvas.getContext('webgl', { powerPreference: 'low-power', antialias: false }) ||
+             canvas.getContext('experimental-webgl');
 
   if (!gl) {
     console.error('WebGL not supported');
@@ -51,98 +54,96 @@
     uniform vec2 u_resolution;
     uniform float u_time;
 
-    // Hash for subtle dither
-    float hash(vec2 p) {
-      p = fract(p * vec2(123.34, 456.21));
-      p += dot(p, p + 45.32);
-      return fract(p.x * p.y);
-    }
-
     void main() {
       vec2 uv = v_uv;
-      float aspect = u_resolution.x / u_resolution.y;
 
-      // Fully autonomous, natural breathing drift (cursor influence disabled)
-      vec2 lightOrigin = vec2(
-        0.5 + sin(u_time * 0.12) * 0.04,
-        1.18 + cos(u_time * 0.09) * 0.02
-      );
+      // Fluid time speed (clearly noticeable, mesmerizing movement)
+      float t = u_time * 0.75;
 
-      // Vector from light to pixel
-      vec2 toPixel = vec2((uv.x - lightOrigin.x) * aspect, uv.y - lightOrigin.y);
-      float dist = length(toPixel);
-      float angle = atan(toPixel.x, -toPixel.y); // angle around downwards direction
+      // Natural organic sway of the light apex
+      float swayX = sin(t * 0.6) * 0.045 + sin(t * 1.1) * 0.02;
+      float swayY = cos(t * 0.5) * 0.012;
 
-      // Clean, silky ray angle with only a very gentle global sway (no distortion)
-      float t = u_time * 0.35;
-      float globalSway = sin(t * 0.3) * 0.015;
-      float a = angle + globalSway;
+      // Anchored directly at the very top edge of the screen (no vertical displacement)
+      vec2 lightOrigin = vec2(0.5 + swayX, 1.015 + swayY);
 
-      // --- Pure, Silky Volumetric Ray Harmonics ---
-      // Beams depend strictly on angle and time so there are ZERO horizontal stripes or tears
-      float r1 = sin(a * 5.5 + t * 0.40) * 0.5 + 0.5;
-      r1 = pow(r1, 1.8);
+      // Position relative to light source
+      float dx = uv.x - lightOrigin.x;
+      float dy = lightOrigin.y - uv.y;
 
-      float r2 = sin(a * 11.5 - t * 0.50 + 1.2) * 0.5 + 0.5;
-      r2 = pow(r2, 2.0);
+      // Coordinate invariant to aspect distortion on mobile portrait displays
+      float angle = atan(dx * 1.6, max(dy, 0.001));
+      float dist = length(vec2(dx * 1.3, dy));
 
-      float r3 = sin(a * 20.0 + t * 0.65 + 2.5) * 0.5 + 0.5;
-      r3 = pow(r3, 2.4);
+      // Visible, graceful sway of individual beams
+      float beamSway = sin(t * 0.8 + dist * 1.4) * 0.055 + cos(t * 0.5) * 0.03;
+      float a = angle + beamSway;
 
-      float r4 = sin(a * 32.0 - t * 0.80 + 4.1) * 0.5 + 0.5;
-      r4 = pow(r4, 2.8);
+      // Dynamic breathing of beam intensities (clearly visible shimmer & life)
+      float pulse1 = 0.85 + 0.25 * sin(t * 0.9);
+      float pulse2 = 0.85 + 0.25 * cos(t * 1.25 + 1.8);
+      float pulse3 = 0.80 + 0.28 * sin(t * 1.6 + 3.2);
+      float pulse4 = 0.75 + 0.30 * cos(t * 1.9 + 4.5);
 
-      // Clean combination of smooth light beams
+      // --- Silky Volumetric Ray Harmonics ---
+      float r1 = sin(a * 4.8 + t * 0.6) * 0.5 + 0.5;
+      r1 = pow(r1, 1.7) * pulse1;
+
+      float r2 = sin(a * 9.5 - t * 0.8 + 1.2) * 0.5 + 0.5;
+      r2 = pow(r2, 1.9) * pulse2;
+
+      float r3 = sin(a * 16.0 + t * 1.1 + 2.5) * 0.5 + 0.5;
+      r3 = pow(r3, 2.3) * pulse3;
+
+      float r4 = sin(a * 25.0 - t * 1.4 + 4.0) * 0.5 + 0.5;
+      r4 = pow(r4, 2.6) * pulse4;
+
+      // Combined ray field
       float rayField = r1 * 0.42 + r2 * 0.34 + r3 * 0.16 + r4 * 0.08;
 
-      // Wide elegant cone envelope
-      float coneEnvelope = exp(-pow(angle / 1.18, 2.0));
+      // Cone envelope (fans gracefully across the full screen width)
+      float coneEnvelope = exp(-pow(angle / 1.32, 2.0));
 
-      // Silky smooth vertical attenuation (pure gradient, no rings or ripples)
-      float verticalFade = smoothstep(1.35, 0.15, dist);
-      verticalFade = pow(verticalFade, 1.35);
+      // Vertical reach (intense at top, gently dissolves towards the bottom)
+      float verticalFade = smoothstep(1.35, 0.08, dist);
+      verticalFade = pow(verticalFade, 1.25);
 
-      // Ambient top dome glow
-      float topAmbientGlow = exp(-pow(dist / 0.92, 1.6)) * 0.38;
+      // Soft ambient glow right at the top entry edge
+      float topGlow = exp(-pow(dist / 0.45, 1.5)) * 0.55;
 
-      // Total light intensity (perfectly smooth volumetric beams)
-      float totalLight = (rayField * 0.65 + 0.35) * coneEnvelope * verticalFade + topAmbientGlow * coneEnvelope;
+      // Total light
+      float totalLight = (rayField * 0.65 + 0.35) * coneEnvelope * verticalFade + topGlow * coneEnvelope;
 
-      // --- Precise Color Palette ---
+      // Precise Color Palette: Inky black, slate navy, steel blue, icy highlight, soft silver core
       vec3 cBlack = vec3(0.0, 0.0, 0.0);
       vec3 cDeepNavy = vec3(0.02, 0.045, 0.085);
       vec3 cSteelBlue = vec3(0.12, 0.28, 0.46);
       vec3 cIceBlue = vec3(0.38, 0.62, 0.85);
       vec3 cSilver = vec3(0.82, 0.91, 1.0);
 
-      // Smooth color mapping
       vec3 color = cBlack;
 
-      // Ambient deep navy presence across the upper half
-      color += cDeepNavy * topAmbientGlow * 1.2;
+      // Upper ambient navy wash
+      color += cDeepNavy * topGlow * 1.2;
 
-      // Beam color gradations
+      // Ray color mapping
       vec3 beamColor = mix(cDeepNavy, cSteelBlue, smoothstep(0.0, 0.28, totalLight));
       beamColor = mix(beamColor, cIceBlue, smoothstep(0.28, 0.65, totalLight));
       beamColor = mix(beamColor, cSilver, smoothstep(0.65, 1.05, totalLight));
 
       color += beamColor * totalLight;
 
-      // Smooth bottom abyss blackout (pure pitch black below)
-      float abyssCutoff = smoothstep(0.02, 0.35, uv.y);
+      // Smooth abyss blackout at the bottom ~25% of the screen
+      float abyssCutoff = smoothstep(0.02, 0.28, uv.y);
       color *= abyssCutoff;
-
-      // Ultra-subtle dither to prevent banding
-      float grain = (hash(gl_FragCoord.xy + vec2(u_time * 15.1, u_time * 47.3)) - 0.5) * 0.008;
-      color += vec3(grain * smoothstep(0.04, 0.95, uv.y));
 
       // Vignette on edges
       float vig = 1.0 - length(vec2((uv.x - 0.5) * 0.7, (1.0 - uv.y) * 0.6));
       vig = clamp(vig, 0.0, 1.0);
-      color *= (0.8 + 0.2 * vig);
+      color *= (0.85 + 0.15 * vig);
 
       // Soft tone mapping
-      color = color / (1.0 + color * 0.22);
+      color = color / (1.0 + color * 0.20);
       color = clamp(color, 0.0, 1.0);
 
       gl_FragColor = vec4(color, 1.0);
@@ -203,10 +204,14 @@
   let width = 0;
   let height = 0;
 
+  // Ultra-optimized resize for mobile Telegram Mini App:
+  // Capping resolution to DPR 1.0 guarantees zero battery drain and smooth 60/120 FPS
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
-    const displayWidth = Math.round(window.innerWidth * dpr);
-    const displayHeight = Math.round(window.innerHeight * dpr);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+    const dpr = isMobile ? 1.0 : Math.min(window.devicePixelRatio || 1, 1.25);
+
+    const displayWidth = Math.max(300, Math.round(window.innerWidth * dpr));
+    const displayHeight = Math.max(400, Math.round(window.innerHeight * dpr));
 
     if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
       canvas.width = displayWidth;
