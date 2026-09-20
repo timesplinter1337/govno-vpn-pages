@@ -357,17 +357,8 @@
 
       color += beamColor * totalLight;
 
-      // Bottom fade only at the very bottom edge
-      float abyssCutoff = smoothstep(0.005, 0.12, uv.y);
-      color = mix(cDarkGray, color, abyssCutoff);
-
-      // Vignette on edges
-      float vig = 1.0 - length(vec2((uv.x - 0.5) * 0.7, (1.0 - uv.y) * 0.6));
-      vig = clamp(vig, 0.0, 1.0);
-      color = mix(cDarkGray, color, 0.85 + 0.15 * vig);
-
-      // Tone mapping
-      color = color / (1.0 + color * 0.18);
+      // Smooth tone mapping (no artificial dark edge vignette)
+      color = color / (1.0 + color * 0.15);
       color = clamp(color, 0.0, 1.0);
 
       gl_FragColor = vec4(color, 1.0);
