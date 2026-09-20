@@ -122,10 +122,10 @@
       currentEl.className = `tab-content animating-out ${outAnim}`;
       targetEl.className = `tab-content active animating-in ${inAnim}`;
 
-      // Reset scroll smoothly
+      // Reset scroll position
       const container = document.querySelector('.app-container');
       if (container) {
-        container.scrollTo({ top: 0, behavior: 'instant' });
+        container.scrollTop = 0;
       }
 
       if (tg && tg.HapticFeedback) {

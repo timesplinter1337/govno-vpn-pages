@@ -1,7 +1,7 @@
 :root {
   --bg-color: #111419;
   --bg-glass: rgba(255, 255, 255, 0.045);
-  --bg-dock: rgba(17, 21, 28, 0.86);
+  --bg-dock: #181d26;
   --bg-pill: rgba(255, 255, 255, 0.06);
   --border-glass: rgba(255, 255, 255, 0.09);
   --border-highlight: rgba(255, 255, 255, 0.15);
@@ -64,7 +64,7 @@ html, body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: calc(env(safe-area-inset-top, 12px) + 14px) 20px calc(env(safe-area-inset-bottom, 16px) + 110px) 20px;
+  padding: calc(env(safe-area-inset-top, 12px) + 14px) 20px calc(env(safe-area-inset-bottom, 16px) + 96px) 20px;
 }
 
 .app-container::-webkit-scrollbar {
@@ -140,7 +140,6 @@ html, body {
   width: 100%;
   margin: 0 auto;
   position: relative;
-  overflow-x: hidden;
 }
 
 /* Tab Switching Content Views with Directional Swipe Animation */
@@ -694,24 +693,7 @@ html, body {
   margin-top: 14px;
 }
 
-/* Bottom Gradient Scrim to smoothly fade scrolling content under dockbar */
-.bottom-scrim {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 125px;
-  background: linear-gradient(to top, 
-    #111419 25%, 
-    rgba(17, 20, 25, 0.88) 60%, 
-    rgba(17, 20, 25, 0.35) 85%, 
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 90;
-}
-
-/* Fixed Floating Glass Dockbar (Pill Capsule, Borderless Frosted Glass) */
+/* Fixed Floating Pill Dockbar (Solid Opaque, No Transparency, Borderless) */
 .dockbar {
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom, 12px) + 12px);
@@ -725,14 +707,12 @@ html, body {
   max-width: 400px;
   height: 64px;
   background: var(--bg-dock);
-  backdrop-filter: blur(32px) saturate(140%);
-  -webkit-backdrop-filter: blur(32px) saturate(140%);
-  border: none; /* User explicitly requested: без обводки */
-  border-radius: 999px; /* User explicitly requested: как будто пилл */
+  border: none; /* без обводки */
+  border-radius: 999px; /* пилл */
   padding: 0 10px;
   box-shadow: 
-    0 24px 50px rgba(0, 0, 0, 0.75),
-    0 8px 20px rgba(0, 0, 0, 0.45);
+    0 16px 40px rgba(0, 0, 0, 0.7),
+    0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .dock-item {
