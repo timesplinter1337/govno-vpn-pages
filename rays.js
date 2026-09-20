@@ -1,34 +1,84 @@
 /**
- * Atmospheric Hero Light Rays & Ambient Glow
- * Specially optimized for Telegram Mini App & mobile screens
- * - Anchored directly at the top edge (no offset on portrait/tall phones)
- * - Noticeable, fluid, organic shimmering and breathing motion
- * - Lightweight canvas resolution (DPR 1.0) for silky 60/120 FPS on all phones
+ * VPN Telegram Mini App
+ * - WebGL Volumetric Rays background with alternative charcoal/graphite gray palette
+ * - Telegram user info parsing (avatar, username)
+ * - Telegram Haptic feedback
  */
 
 (function () {
   'use strict';
 
-  // Telegram WebApp SDK Initialization
-  if (window.Telegram && window.Telegram.WebApp) {
-    try {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand();
-      if (typeof tg.setHeaderColor === 'function') {
-        tg.setHeaderColor('#000000');
+  // --- Telegram WebApp SDK Initialization & User Parsing ---
+  function initTelegramApp() {
+    let user = null;
+    const tg = window.Telegram ? window.Telegram.WebApp : null;
+
+    if (tg) {
+      try {
+        tg.ready();
+        tg.expand();
+        if (typeof tg.setHeaderColor === 'function') {
+          tg.setHeaderColor('#111419');
+        }
+        if (typeof tg.setBackgroundColor === 'function') {
+          tg.setBackgroundColor('#111419');
+        }
+        if (typeof tg.enableClosingConfirmation === 'function') {
+          tg.enableClosingConfirmation();
+        }
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+          user = tg.initDataUnsafe.user;
+        }
+      } catch (e) {
+        console.warn('Telegram SDK init warning:', e);
       }
-      if (typeof tg.setBackgroundColor === 'function') {
-        tg.setBackgroundColor('#000000');
+    }
+
+    // Parse & Display User Profile
+    const avatarEl = document.getElementById('user-avatar');
+    const nameEl = document.getElementById('user-name');
+
+    if (nameEl) {
+      if (user) {
+        const usernameStr = user.username ? `@${user.username}` : (user.first_name || 'Пользователь');
+        nameEl.textContent = usernameStr;
+
+        if (avatarEl) {
+          if (user.photo_url) {
+            avatarEl.innerHTML = `<img src="${user.photo_url}" alt="avatar" class="avatar-img">`;
+          } else {
+            const initial = (user.first_name ? user.first_name[0] : 'U').toUpperCase();
+            avatarEl.innerHTML = `<span class="avatar-initial">${initial}</span>`;
+          }
+        }
+      } else {
+        // Fallback for regular browser preview
+        nameEl.textContent = '@username';
+        if (avatarEl) {
+          avatarEl.innerHTML = `<span class="avatar-initial">U</span>`;
+        }
       }
-      if (typeof tg.enableClosingConfirmation === 'function') {
-        tg.enableClosingConfirmation();
-      }
-    } catch (e) {
-      console.warn('Telegram WebApp init error:', e);
+    }
+
+    // Button Click & Haptic Feedback
+    const btnSubscribe = document.getElementById('btn-subscribe');
+    if (btnSubscribe) {
+      btnSubscribe.addEventListener('click', () => {
+        if (tg && tg.HapticFeedback) {
+          tg.HapticFeedback.impactOccurred('medium');
+        }
+      });
     }
   }
 
+  // Run user initialization on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTelegramApp);
+  } else {
+    initTelegramApp();
+  }
+
+  // --- WebGL Volumetric Rays Shader (Alternative Dark Gray Palette) ---
   const canvas = document.getElementById('glcanvas');
   const gl = canvas.getContext('webgl', { powerPreference: 'low-power', antialias: false }) ||
              canvas.getContext('experimental-webgl');
@@ -57,15 +107,14 @@
     void main() {
       vec2 uv = v_uv;
 
-      // Fluid time speed (clearly noticeable, mesmerizing movement)
+      // Organic fluid motion speed
       float t = u_time * 0.75;
 
       // Natural organic sway of the light apex
       float swayX = sin(t * 0.6) * 0.05 + sin(t * 1.1) * 0.02;
       float swayY = cos(t * 0.5) * 0.02;
 
-      // Place the light apex far above the viewport (so the beginning/origin is completely hidden!)
-      // The viewer only sees the middle body of the rays cutting across the screen.
+      // Light apex placed far above the screen so origin/beginning is completely hidden
       vec2 lightOrigin = vec2(0.5 + swayX, 1.48 + swayY);
 
       // Position relative to light source
@@ -80,7 +129,7 @@
       float beamSway = sin(t * 0.8 + dist * 1.3) * 0.05 + cos(t * 0.5) * 0.025;
       float a = angle + beamSway;
 
-      // Dynamic breathing of beam intensities (clearly visible shimmer & life)
+      // Dynamic breathing of beam intensities (shimmer & life)
       float pulse1 = 0.85 + 0.25 * sin(t * 0.9);
       float pulse2 = 0.85 + 0.25 * cos(t * 1.25 + 1.8);
       float pulse3 = 0.80 + 0.28 * sin(t * 1.6 + 3.2);
@@ -105,27 +154,29 @@
       // Cone envelope (soft, wide fan across the screen)
       float coneEnvelope = exp(-pow(angle / 1.42, 2.0));
 
-      // Vertical reach: smooth gradient from top to bottom (no hotspot, only body of rays)
+      // Vertical reach (only body of rays visible)
       float verticalFade = smoothstep(1.58, 0.42, dist);
       verticalFade = pow(verticalFade, 1.25);
 
-      // Soft ambient background fill across the upper half (no focal hotspot)
+      // Soft ambient background fill across upper half
       float ambientFill = exp(-pow(dist / 1.55, 1.5)) * 0.36;
 
-      // Total light (only the middle/body of the light shafts is seen)
+      // Total light intensity
       float totalLight = (rayField * 0.68 + 0.32) * coneEnvelope * verticalFade + ambientFill * coneEnvelope;
 
-      // Precise Color Palette: Inky black, slate navy, steel blue, icy highlight, soft silver core
-      vec3 cBlack = vec3(0.0, 0.0, 0.0);
-      vec3 cDeepNavy = vec3(0.02, 0.045, 0.085);
-      vec3 cSteelBlue = vec3(0.12, 0.28, 0.46);
-      vec3 cIceBlue = vec3(0.38, 0.62, 0.85);
-      vec3 cSilver = vec3(0.82, 0.91, 1.0);
+      // --- Alternative Charcoal / Graphite Dark Gray Palette ---
+      // Base background: #111419 -> vec3(0.067, 0.078, 0.098)
+      vec3 cDarkGray = vec3(0.067, 0.078, 0.098);
+      vec3 cDeepNavy = vec3(0.085, 0.12, 0.18);
+      vec3 cSteelBlue = vec3(0.16, 0.34, 0.52);
+      vec3 cIceBlue = vec3(0.42, 0.66, 0.88);
+      vec3 cSilver = vec3(0.85, 0.92, 1.0);
 
-      vec3 color = cBlack;
+      // Base alternative gray background
+      vec3 color = cDarkGray;
 
-      // Upper ambient navy wash
-      color += cDeepNavy * ambientFill * 1.2;
+      // Upper ambient tone
+      color += cDeepNavy * ambientFill * 1.1;
 
       // Ray color mapping
       vec3 beamColor = mix(cDeepNavy, cSteelBlue, smoothstep(0.0, 0.28, totalLight));
@@ -134,17 +185,17 @@
 
       color += beamColor * totalLight;
 
-      // Smooth abyss blackout at the bottom ~25% of the screen
-      float abyssCutoff = smoothstep(0.02, 0.28, uv.y);
-      color *= abyssCutoff;
+      // Bottom fade cleanly into the alternative gray #111419
+      float abyssCutoff = smoothstep(0.02, 0.30, uv.y);
+      color = mix(cDarkGray, color, abyssCutoff);
 
       // Vignette on edges
       float vig = 1.0 - length(vec2((uv.x - 0.5) * 0.7, (1.0 - uv.y) * 0.6));
       vig = clamp(vig, 0.0, 1.0);
-      color *= (0.85 + 0.15 * vig);
+      color = mix(cDarkGray, color, 0.85 + 0.15 * vig);
 
-      // Soft tone mapping
-      color = color / (1.0 + color * 0.20);
+      // Tone mapping
+      color = color / (1.0 + color * 0.18);
       color = clamp(color, 0.0, 1.0);
 
       gl_FragColor = vec4(color, 1.0);
@@ -205,8 +256,6 @@
   let width = 0;
   let height = 0;
 
-  // Ultra-optimized resize for mobile Telegram Mini App:
-  // Capping resolution to DPR 1.0 guarantees zero battery drain and smooth 60/120 FPS
   function resize() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
     const dpr = isMobile ? 1.0 : Math.min(window.devicePixelRatio || 1, 1.25);
