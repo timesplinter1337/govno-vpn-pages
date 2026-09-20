@@ -64,8 +64,9 @@
       }
     }
 
-    // Tab Navigation
+    // Tab Navigation with Directional Swipe Transitions
     const dockItems = document.querySelectorAll('.dock-item');
+    const tabOrder = ['home', 'tariffs', 'devices', 'account'];
     const tabContents = {
       home: document.getElementById('tab-home-content'),
       tariffs: document.getElementById('tab-tariffs-content'),
@@ -73,35 +74,78 @@
       account: document.getElementById('tab-account-content')
     };
 
-    function switchTab(tabId) {
-      if (!tabContents[tabId]) return;
+    let currentTabId = 'home';
+    let isTransitioning = false;
+    let transitionTimer = null;
 
+    function switchTab(targetTabId) {
+      if (!tabContents[targetTabId]) return;
+      if (targetTabId === currentTabId) return;
+
+      const fromTabId = currentTabId;
+      const currentIndex = tabOrder.indexOf(fromTabId);
+      const targetIndex = tabOrder.indexOf(targetTabId);
+      const isForward = targetIndex > currentIndex;
+
+      const currentEl = tabContents[fromTabId];
+      const targetEl = tabContents[targetTabId];
+
+      if (!currentEl || !targetEl) return;
+
+      // Update active dock item
       dockItems.forEach(item => {
-        if (item.getAttribute('data-tab') === tabId) {
+        if (item.getAttribute('data-tab') === targetTabId) {
           item.classList.add('active');
         } else {
           item.classList.remove('active');
         }
       });
 
-      Object.entries(tabContents).forEach(([id, el]) => {
-        if (el) {
-          if (id === tabId) {
-            el.classList.add('active');
-          } else {
-            el.classList.remove('active');
-          }
+      // Clear any pending transition cleanup
+      if (transitionTimer) {
+        clearTimeout(transitionTimer);
+        transitionTimer = null;
+      }
+
+      // Cleanup inactive tabs
+      Object.values(tabContents).forEach(el => {
+        if (el && el !== currentEl && el !== targetEl) {
+          el.className = 'tab-content';
         }
       });
 
+      // Determine directional animation classes
+      const outAnim = isForward ? 'slide-out-left' : 'slide-out-right';
+      const inAnim = isForward ? 'slide-in-right' : 'slide-in-left';
+
+      // Setup outgoing and incoming elements
+      currentEl.className = `tab-content animating-out ${outAnim}`;
+      targetEl.className = `tab-content active animating-in ${inAnim}`;
+
+      // Reset scroll smoothly
       const container = document.querySelector('.app-container');
       if (container) {
-        container.scrollTo({ top: 0, behavior: 'smooth' });
+        container.scrollTo({ top: 0, behavior: 'instant' });
       }
 
       if (tg && tg.HapticFeedback) {
         tg.HapticFeedback.selectionChanged();
       }
+
+      currentTabId = targetTabId;
+      isTransitioning = true;
+
+      // Finish transition after 280ms
+      transitionTimer = setTimeout(() => {
+        if (currentEl) {
+          currentEl.className = 'tab-content';
+        }
+        if (targetEl) {
+          targetEl.className = 'tab-content active';
+        }
+        isTransitioning = false;
+        transitionTimer = null;
+      }, 280);
     }
 
     dockItems.forEach(item => {
