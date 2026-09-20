@@ -154,14 +154,14 @@
       // Cone envelope (soft, wide fan across the screen)
       float coneEnvelope = exp(-pow(angle / 1.42, 2.0));
 
-      // Vertical reach (only body of rays visible)
-      float verticalFade = smoothstep(1.58, 0.42, dist);
-      verticalFade = pow(verticalFade, 1.25);
+      // Vertical reach (extended down so bottom mini-cards catch the exact same light)
+      float verticalFade = smoothstep(1.88, 0.40, dist);
+      verticalFade = pow(verticalFade, 1.20);
 
-      // Soft ambient background fill across upper half
-      float ambientFill = exp(-pow(dist / 1.55, 1.5)) * 0.36;
+      // Soft ambient background fill across the viewport
+      float ambientFill = exp(-pow(dist / 1.65, 1.5)) * 0.36;
 
-      // Total light intensity (balanced so it never overpowers foreground text or cards)
+      // Total light intensity
       float totalLight = (rayField * 0.68 + 0.32) * coneEnvelope * verticalFade + ambientFill * coneEnvelope;
       totalLight *= 0.72;
 
@@ -186,8 +186,8 @@
 
       color += beamColor * totalLight;
 
-      // Bottom fade cleanly into the alternative gray #111419
-      float abyssCutoff = smoothstep(0.02, 0.30, uv.y);
+      // Bottom fade only at the very bottom edge
+      float abyssCutoff = smoothstep(0.005, 0.12, uv.y);
       color = mix(cDarkGray, color, abyssCutoff);
 
       // Vignette on edges
