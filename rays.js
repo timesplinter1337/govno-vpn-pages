@@ -61,22 +61,23 @@
       float t = u_time * 0.75;
 
       // Natural organic sway of the light apex
-      float swayX = sin(t * 0.6) * 0.045 + sin(t * 1.1) * 0.02;
-      float swayY = cos(t * 0.5) * 0.012;
+      float swayX = sin(t * 0.6) * 0.05 + sin(t * 1.1) * 0.02;
+      float swayY = cos(t * 0.5) * 0.02;
 
-      // Anchored directly at the very top edge of the screen (no vertical displacement)
-      vec2 lightOrigin = vec2(0.5 + swayX, 1.015 + swayY);
+      // Place the light apex far above the viewport (so the beginning/origin is completely hidden!)
+      // The viewer only sees the middle body of the rays cutting across the screen.
+      vec2 lightOrigin = vec2(0.5 + swayX, 1.48 + swayY);
 
       // Position relative to light source
       float dx = uv.x - lightOrigin.x;
       float dy = lightOrigin.y - uv.y;
 
-      // Coordinate invariant to aspect distortion on mobile portrait displays
-      float angle = atan(dx * 1.6, max(dy, 0.001));
-      float dist = length(vec2(dx * 1.3, dy));
+      // Invariant angular calculation
+      float angle = atan(dx * 1.4, max(dy, 0.001));
+      float dist = length(vec2(dx * 1.1, dy));
 
       // Visible, graceful sway of individual beams
-      float beamSway = sin(t * 0.8 + dist * 1.4) * 0.055 + cos(t * 0.5) * 0.03;
+      float beamSway = sin(t * 0.8 + dist * 1.3) * 0.05 + cos(t * 0.5) * 0.025;
       float a = angle + beamSway;
 
       // Dynamic breathing of beam intensities (clearly visible shimmer & life)
@@ -86,33 +87,33 @@
       float pulse4 = 0.75 + 0.30 * cos(t * 1.9 + 4.5);
 
       // --- Silky Volumetric Ray Harmonics ---
-      float r1 = sin(a * 4.8 + t * 0.6) * 0.5 + 0.5;
-      r1 = pow(r1, 1.7) * pulse1;
+      float r1 = sin(a * 4.2 + t * 0.6) * 0.5 + 0.5;
+      r1 = pow(r1, 1.6) * pulse1;
 
-      float r2 = sin(a * 9.5 - t * 0.8 + 1.2) * 0.5 + 0.5;
-      r2 = pow(r2, 1.9) * pulse2;
+      float r2 = sin(a * 8.5 - t * 0.8 + 1.2) * 0.5 + 0.5;
+      r2 = pow(r2, 1.8) * pulse2;
 
-      float r3 = sin(a * 16.0 + t * 1.1 + 2.5) * 0.5 + 0.5;
-      r3 = pow(r3, 2.3) * pulse3;
+      float r3 = sin(a * 15.0 + t * 1.1 + 2.5) * 0.5 + 0.5;
+      r3 = pow(r3, 2.2) * pulse3;
 
-      float r4 = sin(a * 25.0 - t * 1.4 + 4.0) * 0.5 + 0.5;
-      r4 = pow(r4, 2.6) * pulse4;
+      float r4 = sin(a * 23.0 - t * 1.4 + 4.0) * 0.5 + 0.5;
+      r4 = pow(r4, 2.5) * pulse4;
 
       // Combined ray field
-      float rayField = r1 * 0.42 + r2 * 0.34 + r3 * 0.16 + r4 * 0.08;
+      float rayField = r1 * 0.44 + r2 * 0.32 + r3 * 0.16 + r4 * 0.08;
 
-      // Cone envelope (fans gracefully across the full screen width)
-      float coneEnvelope = exp(-pow(angle / 1.32, 2.0));
+      // Cone envelope (soft, wide fan across the screen)
+      float coneEnvelope = exp(-pow(angle / 1.42, 2.0));
 
-      // Vertical reach (intense at top, gently dissolves towards the bottom)
-      float verticalFade = smoothstep(1.35, 0.08, dist);
+      // Vertical reach: smooth gradient from top to bottom (no hotspot, only body of rays)
+      float verticalFade = smoothstep(1.58, 0.42, dist);
       verticalFade = pow(verticalFade, 1.25);
 
-      // Soft ambient glow right at the top entry edge
-      float topGlow = exp(-pow(dist / 0.45, 1.5)) * 0.55;
+      // Soft ambient background fill across the upper half (no focal hotspot)
+      float ambientFill = exp(-pow(dist / 1.55, 1.5)) * 0.36;
 
-      // Total light
-      float totalLight = (rayField * 0.65 + 0.35) * coneEnvelope * verticalFade + topGlow * coneEnvelope;
+      // Total light (only the middle/body of the light shafts is seen)
+      float totalLight = (rayField * 0.68 + 0.32) * coneEnvelope * verticalFade + ambientFill * coneEnvelope;
 
       // Precise Color Palette: Inky black, slate navy, steel blue, icy highlight, soft silver core
       vec3 cBlack = vec3(0.0, 0.0, 0.0);
@@ -124,7 +125,7 @@
       vec3 color = cBlack;
 
       // Upper ambient navy wash
-      color += cDeepNavy * topGlow * 1.2;
+      color += cDeepNavy * ambientFill * 1.2;
 
       // Ray color mapping
       vec3 beamColor = mix(cDeepNavy, cSteelBlue, smoothstep(0.0, 0.28, totalLight));
