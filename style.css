@@ -86,16 +86,15 @@ html, body {
 }
 
 .user-avatar {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   overflow: hidden;
-  background: linear-gradient(135deg, #38bdf8, #2563eb);
+  background: rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .user-avatar img.avatar-img {
@@ -106,9 +105,9 @@ html, body {
 
 .avatar-initial {
   font-family: var(--font-accent);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #ffffff;
+  color: #e2e8f0;
 }
 
 .user-name {
@@ -133,18 +132,18 @@ html, body {
   margin: 0 auto;
 }
 
-/* Section Title */
+/* Section Title (closer to card, proportionate size) */
 .section-header {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .section-title {
   font-family: var(--font-accent);
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #ffffff;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
 }
 
 /* Pure Frosted Glass Card */
