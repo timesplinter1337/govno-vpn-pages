@@ -161,27 +161,28 @@
       // Soft ambient background fill across upper half
       float ambientFill = exp(-pow(dist / 1.55, 1.5)) * 0.36;
 
-      // Total light intensity
+      // Total light intensity (balanced so it never overpowers foreground text or cards)
       float totalLight = (rayField * 0.68 + 0.32) * coneEnvelope * verticalFade + ambientFill * coneEnvelope;
+      totalLight *= 0.72;
 
       // --- Alternative Charcoal / Graphite Dark Gray Palette ---
       // Base background: #111419 -> vec3(0.067, 0.078, 0.098)
       vec3 cDarkGray = vec3(0.067, 0.078, 0.098);
-      vec3 cDeepNavy = vec3(0.085, 0.12, 0.18);
-      vec3 cSteelBlue = vec3(0.16, 0.34, 0.52);
-      vec3 cIceBlue = vec3(0.42, 0.66, 0.88);
-      vec3 cSilver = vec3(0.85, 0.92, 1.0);
+      vec3 cDeepNavy = vec3(0.08, 0.12, 0.19);
+      vec3 cSteelBlue = vec3(0.14, 0.30, 0.48);
+      vec3 cIceBlue = vec3(0.32, 0.54, 0.76);
+      vec3 cSilver = vec3(0.62, 0.78, 0.94);
 
       // Base alternative gray background
       vec3 color = cDarkGray;
 
       // Upper ambient tone
-      color += cDeepNavy * ambientFill * 1.1;
+      color += cDeepNavy * ambientFill * 1.0;
 
       // Ray color mapping
       vec3 beamColor = mix(cDeepNavy, cSteelBlue, smoothstep(0.0, 0.28, totalLight));
-      beamColor = mix(beamColor, cIceBlue, smoothstep(0.28, 0.65, totalLight));
-      beamColor = mix(beamColor, cSilver, smoothstep(0.65, 1.05, totalLight));
+      beamColor = mix(beamColor, cIceBlue, smoothstep(0.28, 0.60, totalLight));
+      beamColor = mix(beamColor, cSilver, smoothstep(0.60, 0.95, totalLight));
 
       color += beamColor * totalLight;
 
