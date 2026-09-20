@@ -19,7 +19,7 @@
   <!-- WebGL Background Canvas with Volumetric Rays -->
   <canvas id="glcanvas"></canvas>
 
-  <!-- App UI Layer -->
+  <!-- App UI Layer (Smooth Scrollable Container) -->
   <div class="app-container">
     <!-- Top Header Bar with User Profile -->
     <header class="top-bar">
@@ -33,64 +33,221 @@
 
     <!-- Main Content Area -->
     <main class="content-wrapper">
-      <!-- Section Header -->
-      <div class="section-header">
-        <h1 class="section-title">Подписка</h1>
-      </div>
+      <!-- TAB: Home (Главный) -->
+      <section class="tab-content active" id="tab-home-content">
+        <!-- Section Header -->
+        <div class="section-header">
+          <h1 class="section-title">Подписка</h1>
+        </div>
 
-      <!-- Glassmorphic Subscription Card (Stub) -->
-      <div class="glass-card">
-        <div class="card-header">
-          <div class="status-block">
-            <span class="status-label">Статус</span>
-            <span class="status-value">Не подключено</span>
+        <!-- Glassmorphic Subscription Card (Stub) -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="status-block">
+              <span class="status-label">Статус</span>
+              <span class="status-value">Не подключено</span>
+            </div>
+            <div class="card-icon-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
           </div>
-          <div class="card-icon-wrap">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
+
+          <div class="card-body">
+            <div class="info-row">
+              <span class="info-label">Тариф</span>
+              <span class="info-value">Демо</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Трафик</span>
+              <span class="info-value">0 GB / &infin;</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Срок действия</span>
+              <span class="info-value muted">&mdash;</span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button class="action-btn" id="btn-subscribe">
+              <span>Оформить подписку</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+            <div class="card-notice">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span>Интеграция с бэкендом 3X-UI в процессе разработки</span>
+            </div>
           </div>
         </div>
 
-        <div class="card-body">
-          <div class="info-row">
-            <span class="info-label">Тариф</span>
-            <span class="info-value">Демо</span>
+        <!-- Quick Stats / Secondary Mini Cards -->
+        <div class="stats-grid">
+          <!-- Devices Card -->
+          <div class="mini-card" id="mini-devices-card" style="cursor: pointer;">
+            <div class="mini-card-header">
+              <div class="mini-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+              </div>
+              <span class="mini-label">Устройства</span>
+            </div>
+            <div class="mini-value">0 / 3</div>
+            <span class="mini-subtext">Лимит подключений</span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Трафик</span>
-            <span class="info-value">0 GB / &infin;</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Срок действия</span>
-            <span class="info-value muted">&mdash;</span>
+
+          <!-- Speed Card -->
+          <div class="mini-card">
+            <div class="mini-card-header">
+              <div class="mini-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+              </div>
+              <span class="mini-label">Скорость</span>
+            </div>
+            <div class="mini-value">1 Гбит/с</div>
+            <span class="mini-subtext">Без ограничений</span>
           </div>
         </div>
 
-        <div class="card-footer">
-          <button class="action-btn" id="btn-subscribe">
-            <span>Оформить подписку</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
-          <div class="card-notice">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-            <span>Интеграция с бэкендом 3X-UI в процессе разработки</span>
+        <!-- Quick Actions / Services Section -->
+        <div class="quick-actions-section">
+          <h2 class="sub-header-title">Быстрые действия</h2>
+          <div class="actions-plate">
+            <!-- Row: Tariffs -->
+            <div class="action-row" id="action-tariffs">
+              <div class="action-row-left">
+                <div class="action-row-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                  </svg>
+                </div>
+                <span class="action-row-label">Выбрать тариф</span>
+              </div>
+              <div class="action-row-right">
+                <svg class="action-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <div class="action-divider"></div>
+
+            <!-- Row: Support -->
+            <div class="action-row" id="action-support">
+              <div class="action-row-left">
+                <div class="action-row-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <span class="action-row-label">Написать в поддержку</span>
+              </div>
+              <div class="action-row-right">
+                <svg class="action-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Quick Stats / Secondary Mini Cards -->
-      <div class="stats-grid">
-        <!-- Devices Card -->
-        <div class="mini-card">
+      <!-- TAB: Tariffs (Тарифы) -->
+      <section class="tab-content" id="tab-tariffs-content">
+        <div class="section-header">
+          <h1 class="section-title">Тарифы</h1>
+        </div>
+
+        <div class="plans-list">
+          <div class="plan-card selected" data-plan="1year">
+            <div class="plan-info">
+              <div class="plan-title-row">
+                <span class="plan-title">12 месяцев</span>
+                <span class="plan-badge">-35% ХИТ</span>
+              </div>
+              <span class="plan-desc">124 ₽ / месяц &bull; Все локации</span>
+            </div>
+            <div class="plan-price-block">
+              <span class="plan-price">1 490 ₽</span>
+              <span class="plan-period">за 1 год</span>
+            </div>
+          </div>
+
+          <div class="plan-card" data-plan="3months">
+            <div class="plan-info">
+              <div class="plan-title-row">
+                <span class="plan-title">3 месяца</span>
+                <span class="plan-badge">-15%</span>
+              </div>
+              <span class="plan-desc">166 ₽ / месяц &bull; Все локации</span>
+            </div>
+            <div class="plan-price-block">
+              <span class="plan-price">499 ₽</span>
+              <span class="plan-period">за 3 мес</span>
+            </div>
+          </div>
+
+          <div class="plan-card" data-plan="1month">
+            <div class="plan-info">
+              <div class="plan-title-row">
+                <span class="plan-title">1 месяц</span>
+              </div>
+              <span class="plan-desc">Базовый доступ к сети</span>
+            </div>
+            <div class="plan-price-block">
+              <span class="plan-price">199 ₽</span>
+              <span class="plan-period">за 1 мес</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card" style="margin-top: 14px; padding: 18px 20px;">
+          <div class="card-body" style="margin-bottom: 0; gap: 12px;">
+            <div class="info-row">
+              <span class="info-label">Скорость каналов</span>
+              <span class="info-value">До 1 Гбит/с</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Протокол</span>
+              <span class="info-value">VLESS XTLS Reality</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Устройств</span>
+              <span class="info-value">До 3 одновременно</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="action-btn" id="btn-buy-tariff" style="margin-top: 14px;">
+          <span>Оплатить тариф (1 490 ₽)</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </section>
+
+      <!-- TAB: Devices (Устройства) -->
+      <section class="tab-content" id="tab-devices-content">
+        <div class="section-header">
+          <h1 class="section-title">Устройства</h1>
+        </div>
+
+        <div class="mini-card" style="margin-top: 4px;">
           <div class="mini-card-header">
             <div class="mini-icon">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -99,29 +256,168 @@
                 <line x1="12" y1="17" x2="12" y2="21"></line>
               </svg>
             </div>
-            <span class="mini-label">Устройства</span>
+            <span class="mini-label">Подключено устройств</span>
           </div>
           <div class="mini-value">0 / 3</div>
-          <span class="mini-subtext">Лимит подключений</span>
+          <span class="mini-subtext">Доступно еще 3 слота для подключения</span>
         </div>
 
-        <!-- Speed Card -->
-        <div class="mini-card">
-          <div class="mini-card-header">
-            <div class="mini-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        <div class="devices-list">
+          <div class="device-item">
+            <div class="device-left">
+              <div class="device-icon-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                </svg>
+              </div>
+              <div class="action-text">
+                <span class="device-name">Текущее устройство</span>
+                <span class="device-status">Готово к подключению</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="device-item">
+            <div class="device-left">
+              <div class="device-icon-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+              </div>
+              <div class="action-text">
+                <span class="device-name">ПК / Ноутбук</span>
+                <span class="device-status empty">Свободный слот</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="device-item">
+            <div class="device-left">
+              <div class="device-icon-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="16"></line>
+                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+              </div>
+              <div class="action-text">
+                <span class="device-name">Дополнительный слот</span>
+                <span class="device-status empty">Свободный слот</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="action-btn" id="btn-add-device" style="margin-top: 16px;">
+          <span>Получить ключ подключения</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </section>
+
+      <!-- TAB: Account (Аккаунт) -->
+      <section class="tab-content" id="tab-account-content">
+        <div class="section-header">
+          <h1 class="section-title">Аккаунт</h1>
+        </div>
+
+        <div class="account-details-card">
+          <div class="info-row">
+            <span class="info-label">Telegram ID</span>
+            <span class="info-value" id="account-tg-id">&mdash;</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Пользователь</span>
+            <span class="info-value" id="account-tg-user">@username</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Статус аккаунта</span>
+            <span class="info-value" style="color: #94a3b8;">Не активен</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Протокол</span>
+            <span class="info-value">VLESS + XTLS</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Локация сервера</span>
+            <span class="info-value">Германия (DE)</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Версия клиента</span>
+            <span class="info-value muted">1.0.0 (Beta)</span>
+          </div>
+        </div>
+
+        <div class="actions-plate" style="margin-top: 14px;">
+          <div class="action-row" id="account-action-support">
+            <div class="action-row-left">
+              <div class="action-row-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </div>
+              <span class="action-row-label">Служба поддержки</span>
+            </div>
+            <div class="action-row-right">
+              <svg class="action-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </div>
-            <span class="mini-label">Скорость</span>
           </div>
-          <div class="mini-value">1 Гбит/с</div>
-          <span class="mini-subtext">Без ограничений</span>
         </div>
-      </div>
+      </section>
     </main>
   </div>
 
-  <script src="rays.js?v=app9"></script>
+  <!-- Fixed Floating Glass Dockbar (Pill shape, borderless frosted glass) -->
+  <nav class="dockbar" id="dockbar">
+    <div class="dock-item active" data-tab="home">
+      <div class="dock-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </div>
+      <span class="dock-label">Главный</span>
+    </div>
+
+    <div class="dock-item" data-tab="tariffs">
+      <div class="dock-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <line x1="1" y1="10" x2="23" y2="10"></line>
+        </svg>
+      </div>
+      <span class="dock-label">Тарифы</span>
+    </div>
+
+    <div class="dock-item" data-tab="devices">
+      <div class="dock-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+      </div>
+      <span class="dock-label">Устройства</span>
+    </div>
+
+    <div class="dock-item" data-tab="account">
+      <div class="dock-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <span class="dock-label">Аккаунт</span>
+    </div>
+  </nav>
+
+  <script src="rays.js?v=app13"></script>
 </body>
 </html>

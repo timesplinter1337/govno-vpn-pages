@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  // --- Telegram WebApp SDK Initialization & User Parsing ---
+  // --- Telegram WebApp SDK Initialization & UI Interactivity ---
   function initTelegramApp() {
     let user = null;
     const tg = window.Telegram ? window.Telegram.WebApp : null;
@@ -37,33 +37,160 @@
     // Parse & Display User Profile
     const avatarEl = document.getElementById('user-avatar');
     const nameEl = document.getElementById('user-name');
+    const accountTgId = document.getElementById('account-tg-id');
+    const accountTgUser = document.getElementById('account-tg-user');
 
-    if (nameEl) {
-      if (user) {
-        const usernameStr = user.username ? `@${user.username}` : (user.first_name || 'Пользователь');
-        nameEl.textContent = usernameStr;
+    if (user) {
+      const usernameStr = user.username ? `@${user.username}` : (user.first_name || 'Пользователь');
+      if (nameEl) nameEl.textContent = usernameStr;
+      if (accountTgUser) accountTgUser.textContent = usernameStr;
+      if (accountTgId) accountTgId.textContent = user.id ? String(user.id) : '—';
 
-        if (avatarEl) {
-          if (user.photo_url) {
-            avatarEl.innerHTML = `<img src="${user.photo_url}" alt="avatar" class="avatar-img">`;
-          } else {
-            const initial = (user.first_name ? user.first_name[0] : 'U').toUpperCase();
-            avatarEl.innerHTML = `<span class="avatar-initial">${initial}</span>`;
-          }
+      if (avatarEl) {
+        if (user.photo_url) {
+          avatarEl.innerHTML = `<img src="${user.photo_url}" alt="avatar" class="avatar-img">`;
+        } else {
+          const initial = (user.first_name ? user.first_name[0] : 'U').toUpperCase();
+          avatarEl.innerHTML = `<span class="avatar-initial">${initial}</span>`;
         }
-      } else {
-        // Fallback for regular browser preview
-        nameEl.textContent = '@username';
-        if (avatarEl) {
-          avatarEl.innerHTML = `<span class="avatar-initial">U</span>`;
-        }
+      }
+    } else {
+      // Fallback for regular browser preview
+      if (nameEl) nameEl.textContent = '@username';
+      if (accountTgUser) accountTgUser.textContent = '@username';
+      if (accountTgId) accountTgId.textContent = '849201948';
+      if (avatarEl) {
+        avatarEl.innerHTML = `<span class="avatar-initial">U</span>`;
       }
     }
 
-    // Button Click & Haptic Feedback
+    // Tab Navigation
+    const dockItems = document.querySelectorAll('.dock-item');
+    const tabContents = {
+      home: document.getElementById('tab-home-content'),
+      tariffs: document.getElementById('tab-tariffs-content'),
+      devices: document.getElementById('tab-devices-content'),
+      account: document.getElementById('tab-account-content')
+    };
+
+    function switchTab(tabId) {
+      if (!tabContents[tabId]) return;
+
+      dockItems.forEach(item => {
+        if (item.getAttribute('data-tab') === tabId) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+
+      Object.entries(tabContents).forEach(([id, el]) => {
+        if (el) {
+          if (id === tabId) {
+            el.classList.add('active');
+          } else {
+            el.classList.remove('active');
+          }
+        }
+      });
+
+      const container = document.querySelector('.app-container');
+      if (container) {
+        container.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      if (tg && tg.HapticFeedback) {
+        tg.HapticFeedback.selectionChanged();
+      }
+    }
+
+    dockItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const tabId = item.getAttribute('data-tab');
+        switchTab(tabId);
+      });
+    });
+
+    // Quick Actions & In-Page Navigation
+    const actionTariffs = document.getElementById('action-tariffs');
+    if (actionTariffs) {
+      actionTariffs.addEventListener('click', () => {
+        switchTab('tariffs');
+      });
+    }
+
     const btnSubscribe = document.getElementById('btn-subscribe');
     if (btnSubscribe) {
       btnSubscribe.addEventListener('click', () => {
+        switchTab('tariffs');
+      });
+    }
+
+    const miniDevicesCard = document.getElementById('mini-devices-card');
+    if (miniDevicesCard) {
+      miniDevicesCard.addEventListener('click', () => {
+        switchTab('devices');
+      });
+    }
+
+    function openSupport() {
+      if (tg && tg.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred('medium');
+      }
+      if (tg && typeof tg.openTelegramLink === 'function') {
+        tg.openTelegramLink('https://t.me/telegram');
+      } else {
+        window.open('https://t.me/telegram', '_blank');
+      }
+    }
+
+    const actionSupport = document.getElementById('action-support');
+    if (actionSupport) {
+      actionSupport.addEventListener('click', openSupport);
+    }
+
+    const accountActionSupport = document.getElementById('account-action-support');
+    if (accountActionSupport) {
+      accountActionSupport.addEventListener('click', openSupport);
+    }
+
+    // Tariff Plan Selection
+    const planCards = document.querySelectorAll('.plan-card');
+    const buyButton = document.getElementById('btn-buy-tariff');
+    const planPrices = {
+      '1year': '1 490 ₽',
+      '3months': '499 ₽',
+      '1month': '199 ₽'
+    };
+
+    planCards.forEach(card => {
+      card.addEventListener('click', () => {
+        planCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const planKey = card.getAttribute('data-plan');
+        if (buyButton && planPrices[planKey]) {
+          const btnSpan = buyButton.querySelector('span');
+          if (btnSpan) {
+            btnSpan.textContent = `Оплатить тариф (${planPrices[planKey]})`;
+          }
+        }
+        if (tg && tg.HapticFeedback) {
+          tg.HapticFeedback.selectionChanged();
+        }
+      });
+    });
+
+    if (buyButton) {
+      buyButton.addEventListener('click', () => {
+        if (tg && tg.HapticFeedback) {
+          tg.HapticFeedback.impactOccurred('medium');
+        }
+      });
+    }
+
+    const btnAddDevice = document.getElementById('btn-add-device');
+    if (btnAddDevice) {
+      btnAddDevice.addEventListener('click', () => {
         if (tg && tg.HapticFeedback) {
           tg.HapticFeedback.impactOccurred('medium');
         }
