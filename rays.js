@@ -122,9 +122,9 @@
       currentEl.className = `tab-content animating-out ${outAnim}`;
       targetEl.className = `tab-content active animating-in ${inAnim}`;
 
-      // Reset scroll position
+      // Reset scroll position only if needed to avoid forced layout thrash
       const container = document.querySelector('.app-container');
-      if (container) {
+      if (container && container.scrollTop > 0) {
         container.scrollTop = 0;
       }
 
@@ -135,7 +135,7 @@
       currentTabId = targetTabId;
       isTransitioning = true;
 
-      // Finish transition after 280ms
+      // Finish transition after 220ms
       transitionTimer = setTimeout(() => {
         if (currentEl) {
           currentEl.className = 'tab-content';
@@ -145,7 +145,7 @@
         }
         isTransitioning = false;
         transitionTimer = null;
-      }, 280);
+      }, 220);
     }
 
     dockItems.forEach(item => {
@@ -202,9 +202,11 @@
     const planCards = document.querySelectorAll('.plan-card');
     const buyButton = document.getElementById('btn-buy-tariff');
     const planPrices = {
-      '1year': '1 490 ₽',
-      '3months': '499 ₽',
-      '1month': '199 ₽'
+      'lifetime': '899 ₽',
+      '1year': '590 ₽',
+      '6months': '340 ₽',
+      '3months': '190 ₽',
+      '1month': '79 ₽'
     };
 
     planCards.forEach(card => {
@@ -232,11 +234,218 @@
       });
     }
 
-    const btnAddDevice = document.getElementById('btn-add-device');
-    if (btnAddDevice) {
-      btnAddDevice.addEventListener('click', () => {
+    // Devices Section & Test Mode Interactivity
+    const titleDevices = document.getElementById('title-devices');
+    const devicesCountVal = document.getElementById('devices-count-value');
+    const devicesEmptyState = document.getElementById('devices-empty-state');
+    const testDeviceCard = document.getElementById('test-device-card');
+    const btnConnectDevice = document.getElementById('btn-connect-device');
+
+    let isTestDeviceActive = false;
+
+    function setDeviceActiveState(active) {
+      isTestDeviceActive = active;
+      if (active) {
+        if (devicesCountVal) devicesCountVal.textContent = '1 / 3';
+        if (devicesEmptyState) devicesEmptyState.style.display = 'none';
+        if (testDeviceCard) testDeviceCard.style.display = 'block';
+      } else {
+        if (devicesCountVal) devicesCountVal.textContent = '0 / 3';
+        if (devicesEmptyState) devicesEmptyState.style.display = 'block';
+        if (testDeviceCard) testDeviceCard.style.display = 'none';
+      }
+    }
+
+    // Secret trigger: clicking on "Устройства" header toggles test device
+    if (titleDevices) {
+      titleDevices.addEventListener('click', () => {
+        setDeviceActiveState(!isTestDeviceActive);
         if (tg && tg.HapticFeedback) {
           tg.HapticFeedback.impactOccurred('medium');
+        }
+      });
+    }
+
+    // "Подключить устройство" button in empty state
+    if (btnConnectDevice) {
+      btnConnectDevice.addEventListener('click', () => {
+        setDeviceActiveState(true);
+        if (tg && tg.HapticFeedback) {
+          tg.HapticFeedback.impactOccurred('medium');
+        }
+      });
+    }
+
+    // Device Rename functionality
+    const btnEditDeviceName = document.getElementById('btn-edit-device-name');
+    const deviceNameView = document.getElementById('device-name-view');
+    const deviceNameEdit = document.getElementById('device-name-edit');
+    const renameDeviceInput = document.getElementById('rename-device-input');
+    const btnSaveDeviceName = document.getElementById('btn-save-device-name');
+    const btnCancelDeviceName = document.getElementById('btn-cancel-device-name');
+    const deviceTitleText = document.getElementById('device-title-text');
+
+    if (btnEditDeviceName && deviceNameView && deviceNameEdit && renameDeviceInput) {
+      btnEditDeviceName.addEventListener('click', () => {
+        deviceNameView.style.display = 'none';
+        deviceNameEdit.style.display = 'flex';
+        renameDeviceInput.value = deviceTitleText ? deviceTitleText.textContent.trim() : '';
+        renameDeviceInput.focus();
+        if (tg && tg.HapticFeedback) {
+          tg.HapticFeedback.selectionChanged();
+        }
+      });
+    }
+
+    function saveDeviceName() {
+      if (renameDeviceInput && deviceTitleText) {
+        const val = renameDeviceInput.value.trim();
+        if (val.length > 0) {
+          deviceTitleText.textContent = val;
+        }
+      }
+      if (deviceNameEdit) deviceNameEdit.style.display = 'none';
+      if (deviceNameView) deviceNameView.style.display = 'flex';
+      if (tg && tg.HapticFeedback) {
+        if (typeof tg.HapticFeedback.notificationOccurred === 'function') {
+          tg.HapticFeedback.notificationOccurred('success');
+        } else {
+          tg.HapticFeedback.impactOccurred('light');
+        }
+      }
+    }
+
+    function cancelDeviceName() {
+      if (deviceNameEdit) deviceNameEdit.style.display = 'none';
+      if (deviceNameView) deviceNameView.style.display = 'flex';
+      if (tg && tg.HapticFeedback) {
+        tg.HapticFeedback.selectionChanged();
+      }
+    }
+
+    if (btnSaveDeviceName) {
+      btnSaveDeviceName.addEventListener('click', saveDeviceName);
+    }
+    if (btnCancelDeviceName) {
+      btnCancelDeviceName.addEventListener('click', cancelDeviceName);
+    }
+    if (renameDeviceInput) {
+      renameDeviceInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          saveDeviceName();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          cancelDeviceName();
+        }
+      });
+    }
+
+    // HWID Click-to-Copy with visual hint & feedback
+    const hwidCopyPill = document.getElementById('hwid-copy-pill');
+    const hwidCodeText = document.getElementById('hwid-code-text');
+    const copyHintText = document.getElementById('copy-hint-text');
+    let copyResetTimer = null;
+
+    if (hwidCopyPill && hwidCodeText) {
+      hwidCopyPill.addEventListener('click', () => {
+        const textToCopy = hwidCodeText.textContent.trim();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(textToCopy).catch(() => {});
+        } else {
+          const tempTextArea = document.createElement('textarea');
+          tempTextArea.value = textToCopy;
+          tempTextArea.style.position = 'fixed';
+          tempTextArea.style.left = '-9999px';
+          document.body.appendChild(tempTextArea);
+          tempTextArea.focus();
+          tempTextArea.select();
+          try { document.execCommand('copy'); } catch(e) {}
+          document.body.removeChild(tempTextArea);
+        }
+
+        hwidCopyPill.classList.add('copied');
+        if (copyHintText) copyHintText.textContent = 'Скопировано! ✓';
+
+        if (tg && tg.HapticFeedback) {
+          if (typeof tg.HapticFeedback.notificationOccurred === 'function') {
+            tg.HapticFeedback.notificationOccurred('success');
+          } else {
+            tg.HapticFeedback.impactOccurred('medium');
+          }
+        }
+
+        if (copyResetTimer) clearTimeout(copyResetTimer);
+        copyResetTimer = setTimeout(() => {
+          hwidCopyPill.classList.remove('copied');
+          if (copyHintText) copyHintText.textContent = 'Копировать';
+        }, 2000);
+      });
+    }
+
+    // Block / Unblock device toggle
+    const btnToggleBlock = document.getElementById('btn-toggle-block-device');
+    const btnBlockText = document.getElementById('btn-block-text');
+    const deviceStatusTag = document.getElementById('device-status-tag');
+    const statusTagLabel = document.getElementById('status-tag-label');
+    let isDeviceBlocked = false;
+
+    if (btnToggleBlock) {
+      btnToggleBlock.addEventListener('click', () => {
+        isDeviceBlocked = !isDeviceBlocked;
+        if (isDeviceBlocked) {
+          if (deviceStatusTag) deviceStatusTag.classList.add('blocked');
+          if (statusTagLabel) {
+            statusTagLabel.textContent = 'Заблокировано';
+            statusTagLabel.classList.add('blocked');
+          }
+          if (btnBlockText) btnBlockText.textContent = 'Разблокировать';
+          btnToggleBlock.classList.add('is-blocked');
+          if (tg && tg.HapticFeedback) {
+            if (typeof tg.HapticFeedback.notificationOccurred === 'function') {
+              tg.HapticFeedback.notificationOccurred('warning');
+            } else {
+              tg.HapticFeedback.impactOccurred('medium');
+            }
+          }
+        } else {
+          if (deviceStatusTag) deviceStatusTag.classList.remove('blocked');
+          if (statusTagLabel) {
+            statusTagLabel.textContent = 'Активно';
+            statusTagLabel.classList.remove('blocked');
+          }
+          if (btnBlockText) btnBlockText.textContent = 'Заблокировать';
+          btnToggleBlock.classList.remove('is-blocked');
+          if (tg && tg.HapticFeedback) {
+            if (typeof tg.HapticFeedback.notificationOccurred === 'function') {
+              tg.HapticFeedback.notificationOccurred('success');
+            } else {
+              tg.HapticFeedback.impactOccurred('medium');
+            }
+          }
+        }
+      });
+    }
+
+    // Delete device button
+    const btnDeleteDevice = document.getElementById('btn-delete-device');
+    if (btnDeleteDevice) {
+      btnDeleteDevice.addEventListener('click', () => {
+        // Reset device block state
+        isDeviceBlocked = false;
+        if (deviceStatusTag) deviceStatusTag.classList.remove('blocked');
+        if (statusTagLabel) {
+          statusTagLabel.textContent = 'Активно';
+          statusTagLabel.classList.remove('blocked');
+        }
+        if (btnBlockText) btnBlockText.textContent = 'Заблокировать';
+        if (btnToggleBlock) btnToggleBlock.classList.remove('is-blocked');
+
+        // Restore empty state
+        setDeviceActiveState(false);
+
+        if (tg && tg.HapticFeedback) {
+          tg.HapticFeedback.impactOccurred('heavy');
         }
       });
     }

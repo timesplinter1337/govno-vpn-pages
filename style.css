@@ -150,6 +150,7 @@ html, body {
   width: 100%;
   margin: 0 auto;
   position: relative;
+  min-height: 480px;
 }
 
 /* Tab Switching Content Views with Directional Swipe Animation */
@@ -157,7 +158,6 @@ html, body {
   display: none;
   flex-direction: column;
   width: 100%;
-  will-change: transform, opacity;
 }
 
 .tab-content.active {
@@ -172,6 +172,7 @@ html, body {
   width: 100%;
   pointer-events: none;
   z-index: 1;
+  will-change: transform, opacity;
 }
 
 .tab-content.animating-in {
@@ -179,66 +180,67 @@ html, body {
   position: relative;
   width: 100%;
   z-index: 2;
+  will-change: transform, opacity;
 }
 
 /* Forward transition (swipe left: current leaves to left, new enters from right) */
 .tab-content.slide-out-left {
-  animation: tabSlideOutLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: tabSlideOutLeft 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 .tab-content.slide-in-right {
-  animation: tabSlideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: tabSlideInRight 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 /* Backward transition (swipe right: current leaves to right, new enters from left) */
 .tab-content.slide-out-right {
-  animation: tabSlideOutRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: tabSlideOutRight 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 .tab-content.slide-in-left {
-  animation: tabSlideInLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: tabSlideInLeft 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 @keyframes tabSlideOutLeft {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
   100% {
-    transform: translateX(-35%);
+    transform: translate3d(-18%, 0, 0);
     opacity: 0;
   }
 }
 
 @keyframes tabSlideInRight {
   0% {
-    transform: translateX(35%);
+    transform: translate3d(18%, 0, 0);
     opacity: 0;
   }
   100% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
 }
 
 @keyframes tabSlideOutRight {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
   100% {
-    transform: translateX(35%);
+    transform: translate3d(18%, 0, 0);
     opacity: 0;
   }
 }
 
 @keyframes tabSlideInLeft {
   0% {
-    transform: translateX(-35%);
+    transform: translate3d(-18%, 0, 0);
     opacity: 0;
   }
   100% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
     opacity: 1;
   }
 }
@@ -584,33 +586,18 @@ html, body {
   gap: 4px;
 }
 
-.plan-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .plan-title {
   font-family: var(--font-accent);
   font-size: 15px;
   font-weight: 700;
   color: #ffffff;
-}
-
-.plan-badge {
-  font-family: var(--font-main);
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  padding: 2px 7px;
-  border-radius: 999px;
+  letter-spacing: -0.01em;
 }
 
 .plan-desc {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--text-secondary);
+  line-height: 1.35;
 }
 
 .plan-price-block {
@@ -632,59 +619,313 @@ html, body {
   color: var(--text-muted);
 }
 
-.devices-list {
+/* Devices Tab Components: Empty State & Interactive Detail Card */
+.empty-devices-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.device-item {
-  background: var(--bg-glass);
-  backdrop-filter: blur(48px);
-  -webkit-backdrop-filter: blur(48px);
-  border: 1px solid var(--border-glass);
-  border-radius: 20px;
-  padding: 16px 18px;
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  box-shadow: 
-    0 12px 30px rgba(0, 0, 0, 0.25),
-    inset 0 1px 1px var(--border-highlight);
+  text-align: center;
+  padding: 32px 20px;
 }
 
-.device-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.device-icon-box {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+.empty-device-icon-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #cbd5e1;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.device-name {
+.empty-device-title {
+  font-family: var(--font-accent);
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.empty-device-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+/* Detailed Device Card */
+.device-detail-card {
+  padding: 22px;
+}
+
+.device-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 18px;
+}
+
+.device-card-left {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex: 1;
+}
+
+.device-card-right {
+  display: flex;
+  align-items: center;
+}
+
+.device-name-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.device-name-view {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.device-title-text {
+  font-family: var(--font-accent);
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.icon-edit-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.icon-edit-btn:hover,
+.icon-edit-btn:active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  transform: scale(0.94);
+}
+
+.device-name-edit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rename-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9px;
+  padding: 5px 10px;
+  font-family: var(--font-accent);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  outline: none;
+  flex: 1;
+  max-width: 190px;
+}
+
+.rename-input:focus {
+  border-color: var(--accent-cyan);
+}
+
+.rename-confirm-btn,
+.rename-cancel-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.rename-confirm-btn {
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.rename-cancel-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+}
+
+.rename-confirm-btn:active,
+.rename-cancel-btn:active {
+  transform: scale(0.92);
+}
+
+.device-status-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: #34d399;
+  letter-spacing: -0.01em;
+  transition: color 0.2s ease;
+}
+
+.device-status-text.blocked,
+#device-status-tag.blocked .device-status-text {
+  color: #f87171;
+}
+
+.device-meta-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin-bottom: 20px;
+}
+
+.device-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: 13.5px;
+}
+
+.meta-label {
+  color: var(--text-secondary);
+}
+
+.meta-value {
   font-weight: 600;
   color: #ffffff;
 }
 
-.device-status {
-  font-size: 11.5px;
-  color: #34d399;
+.hwid-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
 }
 
-.device-status.empty {
-  color: var(--text-muted);
+.hwid-copy-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  padding: 9px 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.hwid-copy-pill:hover,
+.hwid-copy-pill:active {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.hwid-code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.02em;
+}
+
+.hwid-copy-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.hwid-copy-pill:hover .hwid-copy-action {
+  color: #ffffff;
+}
+
+.hwid-copy-pill.copied {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: rgba(52, 211, 153, 0.09);
+}
+
+.hwid-copy-pill.copied .copy-hint-text,
+.hwid-copy-pill.copied .hwid-copy-action,
+.hwid-copy-pill.copied .hwid-copy-svg {
+  color: #34d399;
+  font-weight: 600;
+}
+
+.device-actions-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.device-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 13px;
+  border-radius: 14px;
+  font-family: var(--font-accent);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.device-action-btn:active {
+  transform: scale(0.97);
+}
+
+.btn-block {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.btn-block:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-block.is-blocked {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.09);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  color: #f87171;
+}
+
+.btn-delete:active {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.4);
 }
 
 .account-details-card {

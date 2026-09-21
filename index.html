@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Unbounded:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=app21">
+  <link rel="stylesheet" href="style.css?v=app23">
 </head>
 <body>
   <!-- WebGL Background Canvas with Volumetric Rays -->
@@ -173,43 +173,57 @@
         </div>
 
         <div class="plans-list">
-          <div class="plan-card selected" data-plan="1year">
+          <div class="plan-card selected" data-plan="lifetime">
             <div class="plan-info">
-              <div class="plan-title-row">
-                <span class="plan-title">12 месяцев</span>
-                <span class="plan-badge">-35% ХИТ</span>
-              </div>
-              <span class="plan-desc">124 ₽ / месяц &bull; Все локации</span>
+              <span class="plan-title">Навсегда</span>
+              <span class="plan-desc">Разовый платеж &bull; Без ограничений</span>
             </div>
             <div class="plan-price-block">
-              <span class="plan-price">1 490 ₽</span>
+              <span class="plan-price">899 ₽</span>
+              <span class="plan-period">навсегда</span>
+            </div>
+          </div>
+
+          <div class="plan-card" data-plan="1year">
+            <div class="plan-info">
+              <span class="plan-title">12 месяцев</span>
+              <span class="plan-desc">49 ₽ / месяц &bull; Выгода 65%</span>
+            </div>
+            <div class="plan-price-block">
+              <span class="plan-price">590 ₽</span>
               <span class="plan-period">за 1 год</span>
+            </div>
+          </div>
+
+          <div class="plan-card" data-plan="6months">
+            <div class="plan-info">
+              <span class="plan-title">6 месяцев</span>
+              <span class="plan-desc">56 ₽ / месяц &bull; Выгода 45%</span>
+            </div>
+            <div class="plan-price-block">
+              <span class="plan-price">340 ₽</span>
+              <span class="plan-period">за 6 мес</span>
             </div>
           </div>
 
           <div class="plan-card" data-plan="3months">
             <div class="plan-info">
-              <div class="plan-title-row">
-                <span class="plan-title">3 месяца</span>
-                <span class="plan-badge">-15%</span>
-              </div>
-              <span class="plan-desc">166 ₽ / месяц &bull; Все локации</span>
+              <span class="plan-title">3 месяца</span>
+              <span class="plan-desc">63 ₽ / месяц &bull; Выгода 25%</span>
             </div>
             <div class="plan-price-block">
-              <span class="plan-price">499 ₽</span>
+              <span class="plan-price">190 ₽</span>
               <span class="plan-period">за 3 мес</span>
             </div>
           </div>
 
           <div class="plan-card" data-plan="1month">
             <div class="plan-info">
-              <div class="plan-title-row">
-                <span class="plan-title">1 месяц</span>
-              </div>
-              <span class="plan-desc">Базовый доступ к сети</span>
+              <span class="plan-title">1 месяц</span>
+              <span class="plan-desc">Базовый доступ на 30 дней</span>
             </div>
             <div class="plan-price-block">
-              <span class="plan-price">199 ₽</span>
+              <span class="plan-price">79 ₽</span>
               <span class="plan-period">за 1 мес</span>
             </div>
           </div>
@@ -233,7 +247,7 @@
         </div>
 
         <button class="action-btn" id="btn-buy-tariff" style="margin-top: 14px;">
-          <span>Оплатить тариф (1 490 ₽)</span>
+          <span>Оплатить тариф (899 ₽)</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
@@ -244,10 +258,10 @@
       <!-- TAB: Devices (Устройства) -->
       <section class="tab-content" id="tab-devices-content">
         <div class="section-header">
-          <h1 class="section-title">Устройства</h1>
+          <h1 class="section-title" id="title-devices" style="cursor: pointer;" title="Нажмите для тестового режима">Устройства</h1>
         </div>
 
-        <div class="mini-card" style="margin-top: 4px;">
+        <div class="mini-card" id="devices-summary-card" style="margin-top: 4px;">
           <div class="mini-card-header">
             <div class="mini-icon">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -258,66 +272,115 @@
             </div>
             <span class="mini-label">Подключено устройств</span>
           </div>
-          <div class="mini-value">0 / 3</div>
-          <span class="mini-subtext">Доступно еще 3 слота для подключения</span>
+          <div class="mini-value" id="devices-count-value">0 / 3</div>
         </div>
 
-        <div class="devices-list">
-          <div class="device-item">
-            <div class="device-left">
+        <!-- Empty State (when 0 devices) -->
+        <div class="glass-card empty-devices-card" id="devices-empty-state" style="margin-top: 14px;">
+          <div class="empty-device-icon-wrap">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="9" y1="12" x2="15" y2="12"></line>
+            </svg>
+          </div>
+          <h3 class="empty-device-title">Нет подключенных устройств</h3>
+          <p class="empty-device-desc">Подключите ваш смартфон, планшет или ПК для защиты соединения и обхода блокировок</p>
+          <button class="action-btn" id="btn-connect-device" style="margin-top: 18px;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Подключить устройство</span>
+          </button>
+          <div class="card-notice" style="margin-top: 13px;">
+            <span>iOS &bull; Android &bull; Windows &bull; macOS &bull; Linux</span>
+          </div>
+        </div>
+
+        <!-- Test Device Detail Card -->
+        <div class="glass-card device-detail-card" id="test-device-card" style="margin-top: 14px; display: none;">
+          <div class="device-card-header">
+            <div class="device-card-left">
               <div class="device-icon-box">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                   <line x1="12" y1="18" x2="12.01" y2="18"></line>
                 </svg>
               </div>
-              <div class="action-text">
-                <span class="device-name">Текущее устройство</span>
-                <span class="device-status">Готово к подключению</span>
+              <div class="device-name-container">
+                <div class="device-name-view" id="device-name-view">
+                  <span class="device-title-text" id="device-title-text">iPhone 15 Pro</span>
+                  <button class="icon-edit-btn" id="btn-edit-device-name" title="Изменить название">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div class="device-name-edit" id="device-name-edit" style="display: none;">
+                  <input type="text" class="rename-input" id="rename-device-input" maxlength="28" value="iPhone 15 Pro" />
+                  <button class="rename-confirm-btn" id="btn-save-device-name" title="Сохранить">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </button>
+                  <button class="rename-cancel-btn" id="btn-cancel-device-name" title="Отмена">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="device-card-right" id="device-status-tag">
+              <span class="device-status-text" id="status-tag-label">Активно</span>
+            </div>
+          </div>
+
+          <div class="device-meta-rows">
+            <div class="device-meta-row">
+              <span class="meta-label">ОС устройства</span>
+              <span class="meta-value">iOS 17.5.1</span>
+            </div>
+            <div class="device-meta-row">
+              <span class="meta-label">VPN-клиент</span>
+              <span class="meta-value">Happ</span>
+            </div>
+            <div class="device-meta-row hwid-row">
+              <span class="meta-label">HWID устройства</span>
+              <div class="hwid-copy-pill" id="hwid-copy-pill" title="Нажмите, чтобы скопировать HWID">
+                <span class="hwid-code" id="hwid-code-text">HWID-8F92-4C10-E7A9-B315</span>
+                <span class="hwid-copy-action">
+                  <svg class="hwid-copy-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span class="copy-hint-text" id="copy-hint-text">Копировать</span>
+                </span>
               </div>
             </div>
           </div>
 
-          <div class="device-item">
-            <div class="device-left">
-              <div class="device-icon-box">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                  <line x1="8" y1="21" x2="16" y2="21"></line>
-                  <line x1="12" y1="17" x2="12" y2="21"></line>
-                </svg>
-              </div>
-              <div class="action-text">
-                <span class="device-name">ПК / Ноутбук</span>
-                <span class="device-status empty">Свободный слот</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="device-item">
-            <div class="device-left">
-              <div class="device-icon-box">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="16"></line>
-                  <line x1="8" y1="12" x2="16" y2="12"></line>
-                </svg>
-              </div>
-              <div class="action-text">
-                <span class="device-name">Дополнительный слот</span>
-                <span class="device-status empty">Свободный слот</span>
-              </div>
-            </div>
+          <div class="device-actions-row">
+            <button class="device-action-btn btn-block" id="btn-toggle-block-device">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <span id="btn-block-text">Заблокировать</span>
+            </button>
+            <button class="device-action-btn btn-delete" id="btn-delete-device">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span>Удалить</span>
+            </button>
           </div>
         </div>
-
-        <button class="action-btn" id="btn-add-device" style="margin-top: 16px;">
-          <span>Получить ключ подключения</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
       </section>
 
       <!-- TAB: Account (Аккаунт) -->
@@ -418,6 +481,6 @@
     </div>
   </nav>
 
-  <script src="rays.js?v=app21"></script>
+  <script src="rays.js?v=app23"></script>
 </body>
 </html>
