@@ -8,6 +8,7 @@
 (function () {
   'use strict';
 
+
   // --- Telegram WebApp SDK Initialization & UI Interactivity ---
   function initTelegramApp() {
     let user = null;
@@ -17,6 +18,9 @@
       try {
         tg.ready();
         tg.expand();
+        if (typeof tg.disableVerticalSwipes === 'function') {
+          tg.disableVerticalSwipes();
+        }
         if (typeof tg.setHeaderColor === 'function') {
           tg.setHeaderColor('#111419');
         }
@@ -75,7 +79,6 @@
     };
 
     let currentTabId = 'home';
-    let isTransitioning = false;
     let transitionTimer = null;
 
     function switchTab(targetTabId) {
@@ -133,7 +136,6 @@
       }
 
       currentTabId = targetTabId;
-      isTransitioning = true;
 
       // Finish transition after 240ms
       transitionTimer = setTimeout(() => {
@@ -143,7 +145,6 @@
         if (targetEl) {
           targetEl.className = 'tab-content active';
         }
-        isTransitioning = false;
         transitionTimer = null;
       }, 240);
     }
@@ -460,8 +461,8 @@
 
   // --- WebGL Volumetric Rays Shader (Alternative Dark Gray Palette) ---
   const canvas = document.getElementById('glcanvas');
-  const gl = canvas.getContext('webgl', { powerPreference: 'low-power', antialias: false }) ||
-             canvas.getContext('experimental-webgl');
+  const gl = canvas.getContext('webgl', { powerPreference: 'low-power', antialias: false, preserveDrawingBuffer: true }) ||
+             canvas.getContext('experimental-webgl', { preserveDrawingBuffer: true });
 
   if (!gl) {
     console.error('WebGL not supported');
