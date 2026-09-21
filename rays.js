@@ -104,28 +104,47 @@
         }
       });
 
+      const contentWrapper = document.querySelector('.content-wrapper');
+
       // Clear any pending transition cleanup
       if (transitionTimer) {
         clearTimeout(transitionTimer);
         transitionTimer = null;
+        Object.values(tabContents).forEach(el => {
+          if (el) {
+            el.className = (el === tabContents[currentTabId]) ? 'tab-content active' : 'tab-content';
+          }
+        });
+        if (contentWrapper) contentWrapper.style.minHeight = '';
       }
 
-      // Reset scroll position cleanly before layout modifications to avoid forced reflow
+      // Reset scroll position cleanly before layout modifications to avoid jump
       const container = document.querySelector('.app-container');
       if (container && container.scrollTop > 0) {
         container.scrollTop = 0;
       }
 
-      // Cleanly deactivate all other tabs so only 1 tab is rendered at a time (prevents mobile GPU overload)
-      Object.values(tabContents).forEach(el => {
-        if (el && el !== targetEl) {
+      // Lock content-wrapper min-height to prevent scroll collapse during slide
+      if (contentWrapper) {
+        const curH = currentEl.offsetHeight || 480;
+        contentWrapper.style.minHeight = curH + 'px';
+      }
+
+      // Hide all non-participating tabs immediately
+      Object.entries(tabContents).forEach(([id, el]) => {
+        if (el && id !== fromTabId && id !== targetTabId) {
           el.className = 'tab-content';
         }
       });
 
-      // Directional glide entrance for incoming tab
-      const inAnim = isForward ? 'enter-right' : 'enter-left';
-      targetEl.className = `tab-content active ${inAnim}`;
+      // Trigger pure GPU directional page flip (zero opacity changes, zero glass darkening)
+      if (isForward) {
+        currentEl.className = 'tab-content active flip-out-left';
+        targetEl.className = 'tab-content active flip-in-right';
+      } else {
+        currentEl.className = 'tab-content active flip-out-right';
+        targetEl.className = 'tab-content active flip-in-left';
+      }
 
       if (tg && tg.HapticFeedback) {
         tg.HapticFeedback.selectionChanged();
@@ -133,13 +152,19 @@
 
       currentTabId = targetTabId;
 
-      // Clean up animation class after 180ms
+      // Clean up after 350ms animation finishes
       transitionTimer = setTimeout(() => {
+        if (currentEl) {
+          currentEl.className = 'tab-content';
+        }
         if (targetEl) {
           targetEl.className = 'tab-content active';
         }
+        if (contentWrapper) {
+          contentWrapper.style.minHeight = '';
+        }
         transitionTimer = null;
-      }, 180);
+      }, 360);
     }
 
     // Horizontal Touch Swipe Support for natural fluid page switching

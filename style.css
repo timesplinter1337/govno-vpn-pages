@@ -152,6 +152,8 @@ html, body {
   margin: 0 auto;
   position: relative;
   min-height: 480px;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Tab Switching Content Views */
@@ -174,33 +176,96 @@ html, body {
   pointer-events: none;
 }
 
-/* Fluid hardware-accelerated entrance for the active tab (single tab in DOM, zero lag) */
-.tab-content.active.enter-right {
-  animation: tabEnterRight 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* ==========================================================================
+   Fluid Page Flip Transition (Horizontal Directional Slide)
+   - 0% Opacity changes: Frosted glass (backdrop-filter) never darkens or glitches
+   - Pure GPU translate3d hardware acceleration
+   - Calibrated 0.35s Apple fluid deceleration curve
+   - Pre-declared initial transforms eliminate WebKit 1-frame layout flicker
+   ========================================================================== */
+
+/* Outgoing page - forward (slides away to left) */
+.tab-content.flip-out-left {
+  display: flex !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+  transform: translate3d(0, 0, 0);
+  animation: pageFlipOutLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform;
 }
 
-.tab-content.active.enter-left {
-  animation: tabEnterLeft 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Incoming page - forward (slides in from right) */
+.tab-content.flip-in-right {
+  display: flex !important;
+  position: relative !important;
+  width: 100%;
+  z-index: 2;
+  transform: translate3d(calc(100% + 24px), 0, 0);
+  animation: pageFlipInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform;
 }
 
-@keyframes tabEnterRight {
+/* Outgoing page - backward (slides away to right) */
+.tab-content.flip-out-right {
+  display: flex !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+  transform: translate3d(0, 0, 0);
+  animation: pageFlipOutRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform;
+}
+
+/* Incoming page - backward (slides in from left) */
+.tab-content.flip-in-left {
+  display: flex !important;
+  position: relative !important;
+  width: 100%;
+  z-index: 2;
+  transform: translate3d(calc(-100% - 24px), 0, 0);
+  animation: pageFlipInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform;
+}
+
+@keyframes pageFlipOutLeft {
   0% {
-    opacity: 0;
-    transform: translate3d(24px, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    opacity: 1;
+    transform: translate3d(calc(-100% - 24px), 0, 0);
+  }
+}
+
+@keyframes pageFlipInRight {
+  0% {
+    transform: translate3d(calc(100% + 24px), 0, 0);
+  }
+  100% {
     transform: translate3d(0, 0, 0);
   }
 }
 
-@keyframes tabEnterLeft {
+@keyframes pageFlipOutRight {
   0% {
-    opacity: 0;
-    transform: translate3d(-24px, 0, 0);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    opacity: 1;
+    transform: translate3d(calc(100% + 24px), 0, 0);
+  }
+}
+
+@keyframes pageFlipInLeft {
+  0% {
+    transform: translate3d(calc(-100% - 24px), 0, 0);
+  }
+  100% {
     transform: translate3d(0, 0, 0);
   }
 }
@@ -951,6 +1016,14 @@ html, body {
 .dock-item.active .dock-icon {
   color: #ffffff;
   transform: translateY(-1px);
+  animation: dockBounce 0.44s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes dockBounce {
+  0% { transform: scale(0.82); }
+  45% { transform: scale(1.20) translateY(-3px); }
+  75% { transform: scale(0.97) translateY(0); }
+  100% { transform: scale(1) translateY(-1px); }
 }
 
 .dock-icon {
