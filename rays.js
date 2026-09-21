@@ -95,7 +95,7 @@
 
       if (!currentEl || !targetEl) return;
 
-      // Update active dock item
+      // Update active dock item immediately for instant tactile feedback
       dockItems.forEach(item => {
         if (item.getAttribute('data-tab') === targetTabId) {
           item.classList.add('active');
@@ -104,67 +104,56 @@
         }
       });
 
-      const contentWrapper = document.querySelector('.content-wrapper');
-
-      // Clear any pending transition cleanup
+      // Clear any pending transition
       if (transitionTimer) {
         clearTimeout(transitionTimer);
         transitionTimer = null;
         Object.values(tabContents).forEach(el => {
-          if (el) {
-            el.className = (el === tabContents[currentTabId]) ? 'tab-content active' : 'tab-content';
-          }
+          if (el) el.className = 'tab-content';
         });
-        if (contentWrapper) contentWrapper.style.minHeight = '';
       }
 
-      // Reset scroll position cleanly before layout modifications to avoid jump
-      const container = document.querySelector('.app-container');
-      if (container && container.scrollTop > 0) {
-        container.scrollTop = 0;
-      }
-
-      // Lock content-wrapper min-height to prevent scroll collapse during slide
-      if (contentWrapper) {
-        const curH = currentEl.offsetHeight || 480;
-        contentWrapper.style.minHeight = curH + 'px';
-      }
-
-      // Hide all non-participating tabs immediately
-      Object.entries(tabContents).forEach(([id, el]) => {
-        if (el && id !== fromTabId && id !== targetTabId) {
-          el.className = 'tab-content';
-        }
-      });
-
-      // Trigger pure GPU directional page flip (zero opacity changes, zero glass darkening)
-      if (isForward) {
-        currentEl.className = 'tab-content active flip-out-left';
-        targetEl.className = 'tab-content active flip-in-right';
-      } else {
-        currentEl.className = 'tab-content active flip-out-right';
-        targetEl.className = 'tab-content active flip-in-left';
-      }
-
-      if (tg && tg.HapticFeedback) {
-        tg.HapticFeedback.selectionChanged();
-      }
+      // Phase 1: Current tab sweeps out in the navigation direction (140ms)
+      currentEl.className = isForward 
+        ? 'tab-content active flip-glide-out-left' 
+        : 'tab-content active flip-glide-out-right';
 
       currentTabId = targetTabId;
 
-      // Clean up after 350ms animation finishes
       transitionTimer = setTimeout(() => {
-        if (currentEl) {
-          currentEl.className = 'tab-content';
+        // Hide outgoing tab completely (eliminates WebKit backdrop-filter collisions & dark vignette)
+        currentEl.className = 'tab-content';
+
+        // Reset scroll position cleanly
+        const container = document.querySelector('.app-container');
+        if (container && container.scrollTop > 0) {
+          container.scrollTop = 0;
         }
-        if (targetEl) {
-          targetEl.className = 'tab-content active';
+
+        // Ensure all non-active tabs are hidden
+        Object.entries(tabContents).forEach(([id, el]) => {
+          if (el && id !== targetTabId) {
+            el.className = 'tab-content';
+          }
+        });
+
+        // Phase 2: Incoming tab enters with fluid Apple deceleration glide (240ms)
+        targetEl.className = isForward 
+          ? 'tab-content active flip-glide-in-right' 
+          : 'tab-content active flip-glide-in-left';
+
+        if (tg && tg.HapticFeedback) {
+          tg.HapticFeedback.selectionChanged();
         }
-        if (contentWrapper) {
-          contentWrapper.style.minHeight = '';
-        }
-        transitionTimer = null;
-      }, 360);
+
+        // Settle cleanly to static active state
+        transitionTimer = setTimeout(() => {
+          if (targetEl) {
+            targetEl.className = 'tab-content active';
+          }
+          transitionTimer = null;
+        }, 250);
+      }, 140);
     }
 
     // Horizontal Touch Swipe Support for natural fluid page switching

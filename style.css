@@ -152,8 +152,6 @@ html, body {
   margin: 0 auto;
   position: relative;
   min-height: 480px;
-  overflow-x: hidden;
-  overflow-x: clip;
 }
 
 /* Tab Switching Content Views */
@@ -177,93 +175,67 @@ html, body {
 }
 
 /* ==========================================================================
-   Fluid Page Flip Transition (Horizontal Directional Slide)
-   - 0% Opacity changes: Frosted glass (backdrop-filter) never darkens or glitches
-   - Pure GPU translate3d hardware acceleration
-   - Calibrated 0.35s Apple fluid deceleration curve
-   - Pre-declared initial transforms eliminate WebKit 1-frame layout flicker
+   Fluid Directional Page Flip Transition (Non-overlapping, Zero-vignette)
+   - 0% Opacity changes: Frosted glass (backdrop-filter) never darkens
+   - Single active layer at any time: Completely eliminates WebKit backdrop-filter vignette/halo
+   - No container clipping: Zero clipped edges or severed box-shadows
+   - Apple fluid deceleration curve for natural, premium glide
    ========================================================================== */
 
-/* Outgoing page - forward (slides away to left) */
-.tab-content.flip-out-left {
+/* Exit animations (140ms quick momentum sweep) */
+.tab-content.flip-glide-out-left {
   display: flex !important;
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  width: 100%;
   pointer-events: none;
-  z-index: 1;
-  transform: translate3d(0, 0, 0);
-  animation: pageFlipOutLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  will-change: transform;
+  animation: flipGlideOutLeft 0.14s cubic-bezier(0.35, 0, 0.8, 0.4) forwards;
 }
 
-/* Incoming page - forward (slides in from right) */
-.tab-content.flip-in-right {
+.tab-content.flip-glide-out-right {
   display: flex !important;
-  position: relative !important;
-  width: 100%;
-  z-index: 2;
-  transform: translate3d(calc(100% + 24px), 0, 0);
-  animation: pageFlipInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  will-change: transform;
-}
-
-/* Outgoing page - backward (slides away to right) */
-.tab-content.flip-out-right {
-  display: flex !important;
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  width: 100%;
   pointer-events: none;
-  z-index: 1;
-  transform: translate3d(0, 0, 0);
-  animation: pageFlipOutRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  will-change: transform;
+  animation: flipGlideOutRight 0.14s cubic-bezier(0.35, 0, 0.8, 0.4) forwards;
 }
 
-/* Incoming page - backward (slides in from left) */
-.tab-content.flip-in-left {
+/* Enter animations (240ms Apple fluid deceleration glide) */
+.tab-content.flip-glide-in-right {
   display: flex !important;
-  position: relative !important;
-  width: 100%;
-  z-index: 2;
-  transform: translate3d(calc(-100% - 24px), 0, 0);
-  animation: pageFlipInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  will-change: transform;
+  animation: flipGlideInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes pageFlipOutLeft {
+.tab-content.flip-glide-in-left {
+  display: flex !important;
+  animation: flipGlideInLeft 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes flipGlideOutLeft {
   0% {
     transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(calc(-100% - 24px), 0, 0);
+    transform: translate3d(-36px, 0, 0);
   }
 }
 
-@keyframes pageFlipInRight {
+@keyframes flipGlideOutRight {
   0% {
-    transform: translate3d(calc(100% + 24px), 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(36px, 0, 0);
+  }
+}
+
+@keyframes flipGlideInRight {
+  0% {
+    transform: translate3d(44px, 0, 0);
   }
   100% {
     transform: translate3d(0, 0, 0);
   }
 }
 
-@keyframes pageFlipOutRight {
+@keyframes flipGlideInLeft {
   0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(calc(100% + 24px), 0, 0);
-  }
-}
-
-@keyframes pageFlipInLeft {
-  0% {
-    transform: translate3d(calc(-100% - 24px), 0, 0);
+    transform: translate3d(-44px, 0, 0);
   }
   100% {
     transform: translate3d(0, 0, 0);
@@ -291,6 +263,7 @@ html, body {
   -webkit-backdrop-filter: blur(var(--blur-glass));
   border: 1px solid var(--border-glass);
   border-radius: 26px;
+  overflow: hidden;
   padding: 24px;
   box-shadow: 
     0 16px 40px rgba(0, 0, 0, 0.35),
@@ -431,6 +404,7 @@ html, body {
   -webkit-backdrop-filter: blur(var(--blur-glass));
   border: 1px solid var(--border-glass);
   border-radius: 22px;
+  overflow: hidden;
   padding: 18px 16px;
   box-shadow: 
     0 16px 40px rgba(0, 0, 0, 0.35),
@@ -583,6 +557,7 @@ html, body {
   -webkit-backdrop-filter: blur(var(--blur-glass));
   border: 1px solid var(--border-glass);
   border-radius: 22px;
+  overflow: hidden;
   padding: 18px 20px;
   display: flex;
   align-items: center;
@@ -958,6 +933,7 @@ html, body {
   -webkit-backdrop-filter: blur(var(--blur-glass));
   border: 1px solid var(--border-glass);
   border-radius: 24px;
+  overflow: hidden;
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
