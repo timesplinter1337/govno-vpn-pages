@@ -154,7 +154,7 @@ html, body {
   min-height: 480px;
 }
 
-/* Tab Switching Content Views with Directional Swipe Animation */
+/* Tab Switching Content Views */
 .tab-content {
   display: none;
   flex-direction: column;
@@ -165,85 +165,43 @@ html, body {
   display: flex;
 }
 
-/* Explicit bottom space so content always scrolls completely above the floating dockbar */
+/* Explicit bottom space so content stops cleanly right above the floating dockbar */
 .tab-bottom-spacer {
   width: 100%;
-  height: 160px;
-  min-height: 160px;
+  height: calc(env(safe-area-inset-bottom, 12px) + 94px);
+  min-height: calc(env(safe-area-inset-bottom, 12px) + 94px);
   flex-shrink: 0;
   pointer-events: none;
 }
 
-.tab-content.animating-out {
-  display: flex !important;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  pointer-events: none;
-  z-index: 1;
-  will-change: transform;
+/* Fluid hardware-accelerated entrance for the active tab (single tab in DOM, zero lag) */
+.tab-content.active.enter-right {
+  animation: tabEnterRight 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.tab-content.animating-in {
-  display: flex !important;
-  position: relative;
-  width: 100%;
-  z-index: 2;
-  will-change: transform;
+.tab-content.active.enter-left {
+  animation: tabEnterLeft 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Forward transition (swipe left: current leaves to left, new enters from right) */
-.tab-content.slide-out-left {
-  animation: tabSlideOutLeft 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.tab-content.slide-in-right {
-  animation: tabSlideInRight 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-/* Backward transition (swipe right: current leaves to right, new enters from left) */
-.tab-content.slide-out-right {
-  animation: tabSlideOutRight 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.tab-content.slide-in-left {
-  animation: tabSlideInLeft 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@keyframes tabSlideOutLeft {
+@keyframes tabEnterRight {
   0% {
-    transform: translateX(0);
+    opacity: 0;
+    transform: translate3d(24px, 0, 0);
   }
   100% {
-    transform: translateX(calc(-100% - 24px));
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 
-@keyframes tabSlideInRight {
+@keyframes tabEnterLeft {
   0% {
-    transform: translateX(calc(100% + 24px));
+    opacity: 0;
+    transform: translate3d(-24px, 0, 0);
   }
   100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes tabSlideOutRight {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(calc(100% + 24px));
-  }
-}
-
-@keyframes tabSlideInLeft {
-  0% {
-    transform: translateX(calc(-100% - 24px));
-  }
-  100% {
-    transform: translateX(0);
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 
