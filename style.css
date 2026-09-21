@@ -172,7 +172,8 @@ html, body {
   width: 100%;
   pointer-events: none;
   z-index: 1;
-  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .tab-content.animating-in {
@@ -180,68 +181,61 @@ html, body {
   position: relative;
   width: 100%;
   z-index: 2;
-  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Forward transition (swipe left: current leaves to left, new enters from right) */
 .tab-content.slide-out-left {
-  animation: tabSlideOutLeft 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation: tabSlideOutLeft 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .tab-content.slide-in-right {
-  animation: tabSlideInRight 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation: tabSlideInRight 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Backward transition (swipe right: current leaves to right, new enters from left) */
 .tab-content.slide-out-right {
-  animation: tabSlideOutRight 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation: tabSlideOutRight 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .tab-content.slide-in-left {
-  animation: tabSlideInLeft 0.22s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation: tabSlideInLeft 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes tabSlideOutLeft {
   0% {
     transform: translate3d(0, 0, 0);
-    opacity: 1;
   }
   100% {
-    transform: translate3d(-18%, 0, 0);
-    opacity: 0;
+    transform: translate3d(calc(-100% - 80px), 0, 0);
   }
 }
 
 @keyframes tabSlideInRight {
   0% {
-    transform: translate3d(18%, 0, 0);
-    opacity: 0;
+    transform: translate3d(calc(100% + 80px), 0, 0);
   }
   100% {
     transform: translate3d(0, 0, 0);
-    opacity: 1;
   }
 }
 
 @keyframes tabSlideOutRight {
   0% {
     transform: translate3d(0, 0, 0);
-    opacity: 1;
   }
   100% {
-    transform: translate3d(18%, 0, 0);
-    opacity: 0;
+    transform: translate3d(calc(100% + 80px), 0, 0);
   }
 }
 
 @keyframes tabSlideInLeft {
   0% {
-    transform: translate3d(-18%, 0, 0);
-    opacity: 0;
+    transform: translate3d(calc(-100% - 80px), 0, 0);
   }
   100% {
     transform: translate3d(0, 0, 0);
-    opacity: 1;
   }
 }
 

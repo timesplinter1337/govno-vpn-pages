@@ -135,7 +135,7 @@
       currentTabId = targetTabId;
       isTransitioning = true;
 
-      // Finish transition after 220ms
+      // Finish transition after 240ms
       transitionTimer = setTimeout(() => {
         if (currentEl) {
           currentEl.className = 'tab-content';
@@ -145,7 +145,7 @@
         }
         isTransitioning = false;
         transitionTimer = null;
-      }, 220);
+      }, 240);
     }
 
     dockItems.forEach(item => {
